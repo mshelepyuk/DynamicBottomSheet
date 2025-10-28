@@ -106,18 +106,18 @@ public final class DynamicBottomSheetController: NSObject, DynamicBottomSheetBri
         set(detent: detent, animated: animated)
     }
 
-    public func invalidateDetents(newDetents: [Detent]) {
+    public func set(detents: [Detent]) {
         guard let superview else { return }
 
         let currentDetentID = model.currentDetent.id
 
-        guard !newDetents.isEmpty else {
+        guard !detents.isEmpty else {
             print("Can't invalidate without any detents.")
             return
         }
 
         model.setResortedDetents(
-            resort(detents: newDetents),
+            resort(detents: detents),
             contentSize: superview.bounds.size
         )
 

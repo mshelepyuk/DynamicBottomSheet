@@ -5,7 +5,7 @@ public protocol DynamicBottomSheetBridge {
 
     func registerEvents(_ events: DynamicBottomSheetController.Events)
     func setDetent(id: DynamicBottomSheetController.Detent.Identifier, animated: Bool)
-    func invalidateDetents(newDetents: [DynamicBottomSheetController.Detent])
+    func set(detents: [DynamicBottomSheetController.Detent])
 }
 
 public protocol DynamicBottomSheetContentViewController: UIViewController {
