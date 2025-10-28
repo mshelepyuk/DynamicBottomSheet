@@ -47,6 +47,7 @@ public final class DynamicBottomSheetController: NSObject, DynamicBottomSheetBri
         self.superview = superview
         setupLayout(superview: superview, contentView: contentView)
         setupViews()
+        setupInitialDetents()
         setupGestures()
         scrollView = contentScrollView
         setupScrollViewSubscriptionsIfNeeded()
@@ -115,14 +116,12 @@ public final class DynamicBottomSheetController: NSObject, DynamicBottomSheetBri
             return
         }
 
-        let resortedDetents = newDetents
-            .sorted {
-                heightForDetent($0) < heightForDetent($1)
-            }
+        model.setResortedDetents(
+            resort(detents: newDetents),
+            contentSize: superview.bounds.size
+        )
 
-        model.setResortedDetents(resortedDetents, contentSize: superview.bounds.size)
-
-        guard let newDetent = model.detent(for: currentDetentID) ?? resortedDetents.first else {
+        guard let newDetent = model.detent(for: currentDetentID) ?? model.detents.first else {
             return
         }
 
@@ -182,6 +181,26 @@ public final class DynamicBottomSheetController: NSObject, DynamicBottomSheetBri
         scrollViewPanGestureRecognizer.delegate = self
         scrollView.addGestureRecognizer(scrollViewPanGestureRecognizer)
         self.scrollViewPanGestureRecognizer = scrollViewPanGestureRecognizer
+    }
+
+    private func setupInitialDetents() {
+        guard let superview else { return }
+
+        model.setResortedDetents(
+            resort(detents: model.detents),
+            contentSize: superview.bounds.size
+        )
+
+        set(detent: model.currentDetent, animated: false)
+    }
+
+    private func resort(detents: [Detent]) -> [Detent] {
+        guard detents.count > 1 else { return detents }
+
+        return detents
+            .sorted(by: {
+                heightForDetent($0) < heightForDetent($1)
+            })
     }
 
     @objc
@@ -438,17 +457,6 @@ public final class DynamicBottomSheetController: NSObject, DynamicBottomSheetBri
         }
 
         superview.layoutIfNeeded()
-
-        if model.detents.count > 1 {
-            let resortedDetents = model
-                .detents
-                .sorted(by: {
-                    heightForDetent($0) < heightForDetent($1)
-                })
-            model.setResortedDetents(resortedDetents, contentSize: superview.bounds.size)
-        }
-
-        set(detent: model.currentDetent, animated: false)
     }
 
     private func setupViews() {
